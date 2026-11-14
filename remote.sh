@@ -13,7 +13,13 @@ echo "failed_units=$(systemctl --failed --no-legend --plain 2>/dev/null | wc -l)
 echo "ssh_fails=$(journalctl -u ssh -u sshd --since '24 hours ago' -q --no-pager 2>/dev/null |
   grep -cE 'Invalid user|Failed password for [^i]|Connection closed by authenticating user')"
 echo "firewall=$(ufw status 2>/dev/null | awk 'NR==1{print $2}')"
-echo "password_login=$(sshd -T 2>/dev/null | awk '/^passwordauthentication /{print $2}')"
+# sshd -T shows only the global value, so also flag any Match block that turns passwords
+# back on (conservative: counts it even if no user matches). Empty output reads as "on".
+pw=$(sshd -T 2>/dev/null | awk '/^passwordauthentication /{print $2}')
+match_pw=$(cat /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null |
+  awk 'tolower($1)=="match"{m=1} m && tolower($1)=="passwordauthentication" && tolower($2)=="yes"{print "yes"; exit}')
+[ "$pw" = no ] && [ "$match_pw" = yes ] && pw=match
+echo "password_login=$pw"
 if command -v fail2ban-client >/dev/null 2>&1; then
   echo "fail2ban=$(systemctl is-active fail2ban 2>/dev/null)"
 else
