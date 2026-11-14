@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "id": "sahils.vps-monitor",
+  "name": "VPS Monitor",
+  "version": "1.0.0",
+  "author": "sahils",
+  "license": "MIT",
+  "description": "Health and security stats for one VPS over SSH inside a WireGuard tunnel, with buttons to connect the tunnel and open a terminal on the server.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "VPS Monitor",
+    "description": "VPS health and security at a glance; click for stats, Connect and Monitor.",
+    "category": "Network",
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "tunnel": "wg0",
+      "sshHost": "vps"
+    },
+    "schema": [
+      {
+        "key": "tunnel",
+        "type": "string",
+        "label": "WireGuard connection",
+        "defaultValue": "wg0",
+        "description": "Name of the NetworkManager WireGuard connection (nmcli connection show)."
+      },
+      {
+        "key": "sshHost",
+        "type": "string",
+        "label": "SSH host",
+        "defaultValue": "vps",
+        "description": "Host alias from ~/.ssh/config. It must log in with a key, without a password prompt."
+      }
+    ]
+  }
+}
